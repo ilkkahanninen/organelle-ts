@@ -1,0 +1,14 @@
+{
+  "name": "organelle-ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^12.7.4",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.6.2"
+  },
+  "scripts": {
+    "start": "yarn ts-node pd.ts"
+  }
+}
