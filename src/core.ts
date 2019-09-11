@@ -1,3 +1,5 @@
+type EmptySet = readonly []
+
 type PdElement<I extends readonly string[], O extends readonly string[]> = {
   elementType: 'obj' | 'msg'
   ctorString: string,
@@ -26,6 +28,11 @@ type PdConnection = [number, number, number, number]
 
 type Value = number | string
 type Tuple2 = [Value, Value]
+
+type ModuleConstructor<I extends readonly string[], O extends readonly string[]> = (ports: {
+  inlets: Record<I[number], PdElement<readonly [], readonly ["data"]>>,
+  outlets: Record<O[number], PdElement<readonly ["data"], readonly []>>,
+}) => void
 
 //
 
@@ -143,12 +150,10 @@ const Outlet = objCreator('outlet', edgePortName, <const>[])
 const Outlet$ = objCreator('outlet~', edgePortName, <const>[])
 
 export const createModule = <I extends readonly string[], O extends readonly string[]>(
+  name: string,
   inletNames: I,
   outletNames: O,
-  moduleCtor: (ports: {
-    inlets: Record<I[number], PdElement<readonly [], readonly ["data"]>>,
-    outlets: Record<O[number], PdElement<readonly ["data"], readonly []>>,
-  }) => void
+  moduleCtor: ModuleConstructor<I, O>
 ) => {
   const streamPortRegex = /.*\$/
   const inlets: PdElement<readonly [], typeof edgePortName>[] =
@@ -175,9 +180,7 @@ export const createModule = <I extends readonly string[], O extends readonly str
     })
   )
 
-  console.log(outlets.map(e => e.inletConnections))
-
-  const Module = {} // TODO: Tee tästä PdElement tyhjän objektin sijaan
+  const Module = objCreator(name, inletNames, outletNames)
 
   Module.toString = () => {
     const padding = 20
@@ -190,17 +193,21 @@ export const createModule = <I extends readonly string[], O extends readonly str
     const height = padding + (2 + rowCount) * ySpacing
 
     return [
-      `#N canvas 100 100 ${width} ${height} 10;`,
+      `#N canvas 100 100 ${width} ${height} 10`,
       ...inlets.map((e, i) =>
-        `#X ${e.elementType} ${padding + i * xSpacing} ${padding} ${e.ctorString};`),
+        `#X ${e.elementType} ${padding + i * xSpacing} ${padding} ${e.ctorString}`),
       ...elements.map((e, i) =>
-        `#X ${e.elementType} ${padding + (i % elementsByRow) * xSpacing} ${padding + ySpacing * (Math.floor(i / elementsByRow) + 1)} ${e.ctorString};`),
+        `#X ${e.elementType} ${padding + (i % elementsByRow) * xSpacing} ${padding + ySpacing * (Math.floor(i / elementsByRow) + 1)} ${e.ctorString}`),
       ...outlets.map((e, i) =>
-        `#X ${e.elementType} ${padding + i * xSpacing} ${padding + ySpacing * (rowCount + 1)} ${e.ctorString};`),
+        `#X ${e.elementType} ${padding + i * xSpacing} ${padding + ySpacing * (rowCount + 1)} ${e.ctorString}`),
       ...parseConnections([...inlets, ...elements, ...outlets]).map(c =>
-        `#X connect ${c.join(' ')};`)
-    ].join("\r\n")
+        `#X connect ${c.join(' ')}`)
+    ]
+      .map(line => `${line.trim()};`)
+      .join("\r\n")
   }
 
   return Module
 }
+
+export const createMainModule = (moduleCtor: ModuleConstructor<EmptySet, EmptySet>) => createModule("main", [], [], moduleCtor)

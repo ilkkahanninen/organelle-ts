@@ -1,7 +1,8 @@
-import { createModule } from "./src/core";
-import { Osc } from "./src/objects";
+import { createModule, createMainModule, msg } from "./src/core";
+import { Osc, Loadbang, DAC } from "./src/objects";
 
-const mod = createModule(
+const DualOsc = createModule(
+  "dualosc",
   <const>["freq1", "freq2"],
   <const>["$"],
   ({ inlets, outlets }) => {
@@ -13,4 +14,16 @@ const mod = createModule(
   }
 )
 
-console.log(mod.toString())
+const Main = createMainModule(() => {
+  const loadbang = Loadbang()
+  const f1 = msg(440, loadbang)
+  const f2 = msg(220, loadbang)
+  const osc = DualOsc({ freq1: f1, freq2: f2 })
+  DAC({ left$: osc, right$: osc })
+})
+
+console.log("dualosc.pd:")
+console.log(DualOsc.toString())
+
+console.log("\nmain.pd:")
+console.log(Main.toString())
