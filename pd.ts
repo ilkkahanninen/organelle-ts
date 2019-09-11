@@ -1,24 +1,16 @@
-const fs = require("fs")
-import { createModule, msg } from "./src/core";
-import { Loadbang, Osc$, Multiply$, DAC$, Bang, Select2 } from "./src/objects";
+import { createModule } from "./src/core";
+import { Osc } from "./src/objects";
 
-const _ = createModule()
-const loadbang = _(Loadbang())
-const $ = (n: string | number) => _(msg(n, loadbang))
+const mod = createModule(
+  <const>["freq1", "freq2"],
+  <const>["$"],
+  ({ inlets, outlets }) => {
 
-const osc1 = _(Osc$({ freq: $(440) }))
-const osc2 = _(Osc$({ freq: $(220) }))
-const mult = _(Multiply$({ left: osc1, right: osc2 }))
-const out = _(DAC$({ left: mult, right: mult }))
+    const osc1 = Osc({ freq: inlets.freq1 })
+    const osc2 = Osc({ freq: inlets.freq2 })
 
-const banger = _.controlIn()
-_.streamIn()
-_.controlOut()
-_.streamOut()
+    outlets.$.connect({ data: [osc1, osc2] })
+  }
+)
 
-_(Bang({ trigger: banger }))
-_(Select2({}, [10, 20]))
-
-const output = _.toString()
-console.log(output)
-fs.writeFileSync("lolwut.pd", output)
+console.log(mod.toString())

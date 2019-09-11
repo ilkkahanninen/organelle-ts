@@ -1,12 +1,13 @@
-type PdElement<T extends readonly string[]> = {
+type PdElement<I extends readonly string[], O extends readonly string[]> = {
   elementType: 'obj' | 'msg'
   ctorString: string,
   inletConnections: Connection[],
-  out: Record<T[number], PortMapping>
+  out: Record<O[number], PortMapping>,
+  connect: (c: ConnectablesMap<I>) => void
 }
 
 type PortMapping = {
-  element: PdElement<any>
+  element: PdElement<any, any>
   portIndex: number
 }
 
@@ -15,7 +16,7 @@ type Connection = {
   target: PortMapping
 }
 
-type Connectable = PdElement<any> | PortMapping // PdElement<any> means port mapping to port 0
+type Connectable = PdElement<any, any> | PortMapping // PdElement<any> means port mapping to port 0
 
 type Connectables = Connectable | Connectable[]
 
@@ -42,29 +43,48 @@ const connectablesToPortMappings = (connectables: Connectables): PortMapping[] =
       : { element: connectable, portIndex: 0 }
     )
 
+type CreatePdElementHook = (element: PdElement<any, any>) => void
+let createPdElementHook: CreatePdElementHook = null
+const withCreatePdElementHook = (hook: CreatePdElementHook, context: () => void) => {
+  createPdElementHook = hook
+  context()
+  createPdElementHook = null
+}
+
 const createPdElement = <I extends readonly string[], O extends readonly string[]>(
-  elementType: PdElement<any>['elementType'],
+  elementType: PdElement<any, any>['elementType'],
   ctorString: Value,
   inletConnectables: ConnectablesMap<I>,
   inletNames: I,
   outletNames: O
-): PdElement<O> => {
+): PdElement<I, O> => {
   const element = {
     elementType,
     ctorString: String(ctorString),
     inletConnections: [] as Connection[],
-    out: {} as Record<O[number], PortMapping>
+    out: {} as Record<O[number], PortMapping>,
+    connect: (_c: ConnectablesMap<I>) => { }
   }
 
-  element.inletConnections = unnest(Object.keys(inletConnectables).map((inletName: I[number]) => {
-    const target = { element, portIndex: inletNames.findIndex(name => name === inletName) }
-    return connectablesToPortMappings(inletConnectables[inletName]).map(source => ({ source, target }))
-  }))
+  const connectablesToConnections = (connectables: ConnectablesMap<I>): Connection[] =>
+    unnest(Object.keys(connectables).map((inletName: I[number]) => {
+      const target = { element, portIndex: inletNames.findIndex(name => name === inletName) }
+      return connectablesToPortMappings(connectables[inletName]).map(source => ({ source, target }))
+    }))
+
+  element.inletConnections = connectablesToConnections(inletConnectables)
 
   element.out = outletNames.reduce(
     (obj, key, index) => ({ ...obj, [key]: { element, portIndex: index } }),
     {} as Record<O[number], PortMapping>
   )
+
+  element.connect = (connectables: ConnectablesMap<I>) =>
+    element.inletConnections.push(...connectablesToConnections(connectables))
+
+  if (createPdElementHook) {
+    createPdElementHook(element)
+  }
 
   return element
 }
@@ -77,7 +97,7 @@ const toCtor = (name: string, value?: any) =>
 const msgInlets = <const>['trigger']
 const msgOutlets = <const>['value']
 
-export const msg = (value: Value, inlets: Connectables): PdElement<typeof msgOutlets> => createPdElement(
+export const msg = (value: Value, inlets: Connectables): PdElement<typeof msgInlets, typeof msgOutlets> => createPdElement(
   'msg',
   value,
   { trigger: inlets },
@@ -86,7 +106,7 @@ export const msg = (value: Value, inlets: Connectables): PdElement<typeof msgOut
 )
 
 export const objCreator = <A extends readonly string[], B extends readonly string[]>(name: string, inletNames: A, outletNames: B) =>
-  (inlets: ConnectablesMap<A> = {}, value: Value = ''): PdElement<B> => createPdElement(
+  (inlets: ConnectablesMap<A> = {}, value: Value = ''): PdElement<A, B> => createPdElement(
     'obj',
     toCtor(name, value),
     inlets,
@@ -95,7 +115,7 @@ export const objCreator = <A extends readonly string[], B extends readonly strin
   )
 
 export const objCreator2 = <A extends readonly string[], B extends readonly string[]>(name: string, inletNames: A, outletNames: B) =>
-  (inlets: ConnectablesMap<A> = {}, value: Tuple2): PdElement<B> => createPdElement(
+  (inlets: ConnectablesMap<A> = {}, value: Tuple2): PdElement<A, B> => createPdElement(
     'obj',
     toCtor(name, value),
     inlets,
@@ -103,12 +123,7 @@ export const objCreator2 = <A extends readonly string[], B extends readonly stri
     outletNames
   )
 
-export const Inlet = objCreator('inlet', <const>[], <const>['value'])
-export const Inlet$ = objCreator('inlet~', <const>[], <const>['stream'])
-export const Outlet = objCreator('outlet', <const>['value'], <const>[])
-export const Outlet$ = objCreator('outlet~', <const>['stream'], <const>[])
-
-const parseConnections = (elements: PdElement<any>[]): PdConnection[] => unnest(
+const parseConnections = (elements: PdElement<any, any>[]): PdConnection[] => unnest(
   elements.map(element =>
     element.inletConnections.map(connection => [
       elements.findIndex(e => e === connection.source.element),
@@ -119,21 +134,50 @@ const parseConnections = (elements: PdElement<any>[]): PdConnection[] => unnest(
   )
 )
 
-export const createModule = () => {
-  const inlets: PdElement<any>[] = []
-  const elements: PdElement<any>[] = []
-  const outlets: PdElement<any>[] = []
 
-  const push = <T>(arr: Array<T>, item: T): T => {
-    arr.push(item)
-    return item
-  }
 
-  const Module = <T extends readonly string[]>(element: PdElement<T>) => push(elements, element)
-  Module.controlIn = () => push(inlets, Inlet())
-  Module.streamIn = () => push(inlets, Inlet$())
-  Module.controlOut = () => push(outlets, Outlet())
-  Module.streamOut = () => push(outlets, Outlet$())
+const edgePortName = <const>['data']
+const Inlet = objCreator('inlet', <const>[], edgePortName)
+const Inlet$ = objCreator('inlet~', <const>[], edgePortName)
+const Outlet = objCreator('outlet', edgePortName, <const>[])
+const Outlet$ = objCreator('outlet~', edgePortName, <const>[])
+
+export const createModule = <I extends readonly string[], O extends readonly string[]>(
+  inletNames: I,
+  outletNames: O,
+  moduleCtor: (ports: {
+    inlets: Record<I[number], PdElement<readonly [], readonly ["data"]>>,
+    outlets: Record<O[number], PdElement<readonly ["data"], readonly []>>,
+  }) => void
+) => {
+  const streamPortRegex = /.*\$/
+  const inlets: PdElement<readonly [], typeof edgePortName>[] =
+    inletNames.map(name => streamPortRegex.test(name) ? Inlet$() : Inlet())
+  const outlets: PdElement<typeof edgePortName, readonly []>[] =
+    outletNames.map(name => streamPortRegex.test(name) ? Outlet$() : Outlet())
+  const elements: PdElement<any, any>[] = []
+
+  const listToRecord = <
+    T extends readonly string[],
+    I extends readonly string[],
+    O extends readonly string[]
+  >(names: T, list: PdElement<I, O>[]) =>
+    names.reduce(
+      (obj, name, index) => ({ ...obj, [name]: list[index] }),
+      {} as Record<T[number], PdElement<I, O>>
+    )
+
+  withCreatePdElementHook(
+    element => elements.push(element),
+    () => moduleCtor({
+      inlets: listToRecord(inletNames, inlets),
+      outlets: listToRecord(outletNames, outlets)
+    })
+  )
+
+  console.log(outlets.map(e => e.inletConnections))
+
+  const Module = {} // TODO: Tee tästä PdElement tyhjän objektin sijaan
 
   Module.toString = () => {
     const padding = 20
