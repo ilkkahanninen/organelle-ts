@@ -36,14 +36,14 @@ type ModuleConstructor<I extends readonly string[], O extends readonly string[]>
 
 //
 
-const ensureArray = <T>(n: T | T[]): T[] => Array.isArray(n) ? n : [n]
+const ensureArray = <T>(n?: T | T[]): T[] => n === undefined ? [] : Array.isArray(n) ? n : [n]
 
 const unnest = <T>(arr: T[][]): T[] => arr.reduce((a, n) => [...a, ...n], [])
 
 const isPortMapping = (o: any): o is PortMapping =>
   typeof o === 'object' && typeof o.element === 'object' && typeof o.portIndex === 'number'
 
-const connectablesToPortMappings = (connectables: Connectables): PortMapping[] =>
+const connectablesToPortMappings = (connectables?: Connectables): PortMapping[] =>
   ensureArray(connectables)
     .map(connectable => isPortMapping(connectable)
       ? connectable
@@ -51,7 +51,7 @@ const connectablesToPortMappings = (connectables: Connectables): PortMapping[] =
     )
 
 type CreatePdElementHook = (element: PdElement<any, any>) => void
-let createPdElementHook: CreatePdElementHook = null
+let createPdElementHook: CreatePdElementHook | null = null
 const withCreatePdElementHook = (hook: CreatePdElementHook, context: () => void) => {
   createPdElementHook = hook
   context()
