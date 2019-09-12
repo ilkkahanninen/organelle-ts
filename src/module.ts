@@ -47,6 +47,7 @@ export const createModule = <I extends EmptySet, O extends EmptySet>(
   )
 
   const Module = objCreator(name, inletNames, outletNames)
+  Object.defineProperty(Module, 'name', { value: 'PdModule', writable: false })
 
   Module.toString = () => {
     const padding = 20

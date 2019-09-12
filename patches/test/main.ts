@@ -1,9 +1,9 @@
 import { msg } from "@pd/core";
 import { Loadbang, DAC } from "@pd/objects";
 import { createMainModule } from "@pd/module";
-import { DualOsc } from "./dualosc";
+import { DualOsc } from "./DualOsc";
 
-export const Main = createMainModule(() => {
+export const main = createMainModule(() => {
   const loadbang = Loadbang()
   const f1 = msg(440, loadbang)
   const f2 = msg(220, loadbang)

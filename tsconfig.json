@@ -4,10 +4,10 @@
     "module": "commonjs",
     "strict": true,
     "esModuleInterop": true,
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
       "@pd/*": [
-        "*"
+        "./src/*"
       ]
     }
   }

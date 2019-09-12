@@ -2,7 +2,7 @@ import { Osc } from "@pd/objects";
 import { createModule } from "@pd/module";
 
 export const DualOsc = createModule(
-  "dualosc",
+  "DualOsc",
   <const>["freq1", "freq2"],
   <const>["$"],
   ({ inlets, outlets }) => {
