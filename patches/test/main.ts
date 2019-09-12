@@ -1,5 +1,6 @@
-import { createMainModule, msg } from "@pd/core";
+import { msg } from "@pd/core";
 import { Loadbang, DAC } from "@pd/objects";
+import { createMainModule } from "@pd/module";
 import { DualOsc } from "./dualosc";
 
 export const Main = createMainModule(() => {

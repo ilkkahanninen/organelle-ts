@@ -1,5 +1,5 @@
-import { createModule } from "@pd/core";
 import { Osc } from "@pd/objects";
+import { createModule } from "@pd/module";
 
 export const DualOsc = createModule(
   "dualosc",
