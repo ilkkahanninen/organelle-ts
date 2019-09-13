@@ -79,12 +79,22 @@ export const createModule = <I extends EmptySet, O extends EmptySet>(
 
 export const createMainModule = (moduleCtor: ModuleConstructor<EmptySet, EmptySet>) => createModule("main", [], [], moduleCtor)
 
+const findIndexOrThrow = <T>(list: T[], value: T) => {
+  const index = list.findIndex(a => a === value)
+  if (index < 0) {
+    console.error('Could not find:', value)
+    console.error('In array:', list)
+    throw Error(`ERROR: Could not find value in array`)
+  }
+  return index
+}
+
 const parseConnections = (elements: PdElement<any, any>[]): PdConnection[] => unnest(
   elements.map(element =>
     element.inletConnections.map(connection => [
-      elements.findIndex(e => e === connection.source.element),
+      findIndexOrThrow(elements, connection.source.element),
       connection.source.portIndex,
-      elements.findIndex(e => e === connection.target.element),
+      findIndexOrThrow(elements, connection.target.element),
       connection.target.portIndex
     ])
   )

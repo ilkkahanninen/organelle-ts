@@ -32,18 +32,25 @@ type Tuple2 = [Value, Value]
 //
 
 const isPortMapping = (o: any): o is PortMapping =>
-  typeof o === 'object' && typeof o.element === 'object' && typeof o.portIndex === 'number'
+  typeof o === 'object' &&
+  typeof o.element === 'object' &&
+  typeof o.portIndex === 'number'
 
 const isPdElement = (o: any): o is PdElement<any, any> =>
   typeof o === 'object' &&
   (o.elementType === 'obj' || o.elementType === 'msg') &&
-  !!o.ctorString &&
   Array.isArray(o.inletConnections) &&
   typeof o.out === 'object' &&
   typeof o.connect === 'function'
 
 const isConnectablesMap = (o: any): o is ConnectablesMap<any> =>
-  typeof o === 'object' && Object.values(o).every(n => isPdElement(n) || (Array.isArray(n) && n.every(isPdElement)))
+  typeof o === 'object' &&
+  !Array.isArray(o) &&
+  Object.values(o).every(n =>
+    isPdElement(n) ||
+    isPortMapping(n) ||
+    (Array.isArray(n) && n.every(m => isPdElement(m) || isPortMapping(m)))
+  )
 
 const connectablesToPortMappings = (connectables?: Connectables): PortMapping[] =>
   ensureArray(connectables)
@@ -61,6 +68,11 @@ export const withCreatePdElementHook = (hook: CreatePdElementHook, context: () =
   createPdElementHook = null
 }
 
+const formatCtorString = (input: string | number): string =>
+  typeof input === 'string'
+    ? input.replace(/(\$\d+)/g, (_m, x) => `\\${x}`)
+    : String(input)
+
 const createPdElement = <I extends EmptySet, O extends EmptySet>(
   elementType: PdElement<any, any>['elementType'],
   ctorString: Value,
@@ -70,7 +82,7 @@ const createPdElement = <I extends EmptySet, O extends EmptySet>(
 ): PdElement<I, O> => {
   const element = {
     elementType,
-    ctorString: String(ctorString),
+    ctorString: formatCtorString(ctorString),
     inletConnections: [] as Connection[],
     out: {} as Record<O[number], PortMapping>,
     connect: (_c: ConnectablesMap<I>) => { }
@@ -79,7 +91,13 @@ const createPdElement = <I extends EmptySet, O extends EmptySet>(
   const connectablesToConnections = (connectables: ConnectablesMap<I> | Connectables): Connection[] =>
     isConnectablesMap(connectables)
       ? unnest(Object.keys(connectables).map((inletName: I[number]) => {
-        const target = { element, portIndex: inletNames.findIndex(name => name === inletName) }
+        const portIndex = inletNames.findIndex(name => name === inletName)
+        if (portIndex < 0) {
+          console.error('Invalid port mapping detected in:')
+          console.error(connectables)
+          throw Error(`Unexpected error: Could not connect to unknown inlet '${inletName}'`)
+        }
+        const target = { element, portIndex }
         return connectablesToPortMappings(connectables[inletName]).map(source => ({ source, target }))
       }))
       : connectablesToPortMappings(connectables).map(source => ({ source, target: { element, portIndex: 0 } }))

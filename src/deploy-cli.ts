@@ -13,7 +13,10 @@ async function uploadPatch(deviceAdress: string, patch: string) {
   const files = (await readDir(buildPath))
     .map(file => `${buildPath}/${file}`)
 
+  console.log(`Creating path ${targetPath}`)
   await client.createPath(targetPath)
+  console.log('Uploading files')
+  console.log(files.map(file => `    ${file}`).join("\n"))
   await client.uploadFiles(targetPath, files)
 }
 
