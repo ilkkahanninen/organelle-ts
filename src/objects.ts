@@ -37,7 +37,7 @@ export const Receive = objCreator('receive', <const>[], <const>['message'])
 /**
  * Test for matchin numbers or symbols
  */
-export const Select = objCreator('select', <const>['left', 'right'], <const>['equals', 'else'])
+export const Select = objCreator('select', <const>['left', 'right'], <const>['match', 'else'])
 export const Select2 = objCreator2('select', <const>['value'], <const>['eq1', 'eq2'])
 // TODO: Lisää variantteja
 
@@ -47,7 +47,11 @@ export const DAC = objCreator('dac~', <const>['left$', 'right$'], <const>[])
 export const Loadbang = objCreator('loadbang', <const>[], <const>[])
 export const Multiply = objCreator('*', <const>['left', 'right'], <const>['$'])
 export const Multiply$ = objCreator('*~', <const>['left$', 'right$'], <const>['$'])
+export const Divide = objCreator('/', <const>['left', 'right'], <const>['$'])
+export const Add = objCreator('+', <const>['left', 'right'], <const>['$'])
+export const Subtract = objCreator('-', <const>['left', 'right'], <const>['$'])
 export const LPF = objCreator('lop~', <const>['signal$', 'freq'], <const>['signal$'])
 export const Throw$ = objCreator('throw~', <const>['data'], <const>[''])
 export const Unpack = objCreator('unpack', <const>['message'], <const>['v1', 'v2'])
 export const MidiToFreq = objCreator('mtof', <const>['note'], <const>['freq'])
+export const Line$ = objCreator('line~', <const>['message', 'rampTime', 'grain'], <const>['value'])
