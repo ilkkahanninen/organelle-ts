@@ -17,12 +17,19 @@ export const buildPatch = (entryFile: string, buildPath: string) => {
 
   list.forEach(src => {
     const mod = require(src)
-    console.log(mod)
-    Object.keys(mod)
-      .filter(key => isPdModule(mod[key]))
-      .forEach(name => {
-        fs.writeFileSync(`${buildPath}/${name}.pd`, mod[name].toString())
-      })
+    const keys = Object.keys(mod).filter(key => isPdModule(mod[key]))
+    if (keys.length > 0) {
+      console.log(`Build ${src}:`)
+    }
+    keys.forEach(name => {
+      const filename = `${buildPath}/${name}.pd`
+      const code = mod[name].toString()
+      console.log(filename)
+      console.log()
+      console.log(code)
+      console.log()
+      fs.writeFileSync(filename, code)
+    })
   })
 }
 

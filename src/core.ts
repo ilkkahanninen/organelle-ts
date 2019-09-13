@@ -34,6 +34,17 @@ type Tuple2 = [Value, Value]
 const isPortMapping = (o: any): o is PortMapping =>
   typeof o === 'object' && typeof o.element === 'object' && typeof o.portIndex === 'number'
 
+const isPdElement = (o: any): o is PdElement<any, any> =>
+  typeof o === 'object' &&
+  (o.elementType === 'obj' || o.elementType === 'msg') &&
+  !!o.ctorString &&
+  Array.isArray(o.inletConnections) &&
+  typeof o.out === 'object' &&
+  typeof o.connect === 'function'
+
+const isConnectablesMap = (o: any): o is ConnectablesMap<any> =>
+  typeof o === 'object' && Object.values(o).every(n => isPdElement(n) || (Array.isArray(n) && n.every(isPdElement)))
+
 const connectablesToPortMappings = (connectables?: Connectables): PortMapping[] =>
   ensureArray(connectables)
     .map(connectable => isPortMapping(connectable)
@@ -53,7 +64,7 @@ export const withCreatePdElementHook = (hook: CreatePdElementHook, context: () =
 const createPdElement = <I extends EmptySet, O extends EmptySet>(
   elementType: PdElement<any, any>['elementType'],
   ctorString: Value,
-  inletConnectables: ConnectablesMap<I>,
+  inletConnectables: ConnectablesMap<I> | Connectables,
   inletNames: I,
   outletNames: O
 ): PdElement<I, O> => {
@@ -65,11 +76,13 @@ const createPdElement = <I extends EmptySet, O extends EmptySet>(
     connect: (_c: ConnectablesMap<I>) => { }
   }
 
-  const connectablesToConnections = (connectables: ConnectablesMap<I>): Connection[] =>
-    unnest(Object.keys(connectables).map((inletName: I[number]) => {
-      const target = { element, portIndex: inletNames.findIndex(name => name === inletName) }
-      return connectablesToPortMappings(connectables[inletName]).map(source => ({ source, target }))
-    }))
+  const connectablesToConnections = (connectables: ConnectablesMap<I> | Connectables): Connection[] =>
+    isConnectablesMap(connectables)
+      ? unnest(Object.keys(connectables).map((inletName: I[number]) => {
+        const target = { element, portIndex: inletNames.findIndex(name => name === inletName) }
+        return connectablesToPortMappings(connectables[inletName]).map(source => ({ source, target }))
+      }))
+      : connectablesToPortMappings(connectables).map(source => ({ source, target: { element, portIndex: 0 } }))
 
   element.inletConnections = connectablesToConnections(inletConnectables)
 
@@ -78,7 +91,7 @@ const createPdElement = <I extends EmptySet, O extends EmptySet>(
     {} as Record<O[number], PortMapping>
   )
 
-  element.connect = (connectables: ConnectablesMap<I>) =>
+  element.connect = (connectables: ConnectablesMap<I> | Connectables) =>
     element.inletConnections.push(...connectablesToConnections(connectables))
 
   if (createPdElementHook) {
@@ -105,7 +118,7 @@ export const msg = (value: Value, inlets: Connectables): PdElement<typeof msgInl
 )
 
 export const objCreator = <A extends EmptySet, B extends EmptySet>(name: string, inletNames: A, outletNames: B) =>
-  (inlets: ConnectablesMap<A> = {}, value: Value = ''): PdElement<A, B> => createPdElement(
+  (inlets: ConnectablesMap<A> | Connectables = {}, value: Value = ''): PdElement<A, B> => createPdElement(
     'obj',
     toCtor(name, value),
     inlets,
@@ -114,7 +127,7 @@ export const objCreator = <A extends EmptySet, B extends EmptySet>(name: string,
   )
 
 export const objCreator2 = <A extends EmptySet, B extends EmptySet>(name: string, inletNames: A, outletNames: B) =>
-  (inlets: ConnectablesMap<A> = {}, value: Tuple2): PdElement<A, B> => createPdElement(
+  (inlets: ConnectablesMap<A> | Connectables = {}, value: Tuple2): PdElement<A, B> => createPdElement(
     'obj',
     toCtor(name, value),
     inlets,

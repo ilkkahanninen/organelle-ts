@@ -7,8 +7,8 @@ export const DualOsc = createModule(
   <const>["$"],
   ({ inlets, outlets }) => {
 
-    const osc1 = Osc({ freq$: inlets.freq1$ })
-    const osc2 = Osc({ freq$: inlets.freq2$ })
+    const osc1 = Osc(inlets.freq1$)
+    const osc2 = Osc(inlets.freq2$)
 
     outlets.$.connect({ data: [osc1, osc2] })
   }
