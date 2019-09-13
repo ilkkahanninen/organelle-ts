@@ -8,7 +8,7 @@ export const buildPatch = (entryFile: string, buildPath: string) => {
     filename: entryFile,
     directory: './patches',
     tsConfig: './tsconfig.json',
-    filter: (path: string) => !path.includes('node_modules') && !path.includes('src')
+    filter: (path: string) => !path.includes('node_modules')
   }) as string[]
 
   const isPdModule = (x: any) => typeof x === 'function' && x.name === 'PdModule'

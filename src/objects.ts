@@ -48,5 +48,6 @@ export const Loadbang = objCreator('loadbang', <const>[], <const>[])
 export const Multiply = objCreator('*', <const>['left', 'right'], <const>['$'])
 export const Multiply$ = objCreator('*~', <const>['left$', 'right$'], <const>['$'])
 export const LPF = objCreator('lop~', <const>['signal$', 'freq'], <const>['signal$'])
-
 export const Throw$ = objCreator('throw~', <const>['data'], <const>[''])
+export const Unpack = objCreator('unpack', <const>['message'], <const>['v1', 'v2'])
+export const MidiToFreq = objCreator('mtof', <const>['note'], <const>['freq'])
