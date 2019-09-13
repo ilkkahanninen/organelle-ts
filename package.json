@@ -5,12 +5,16 @@
   "license": "MIT",
   "dependencies": {
     "@types/node": "^12.7.4",
+    "@types/node-fetch": "^2.5.0",
     "dependency-tree": "^7.0.2",
+    "form-data": "^2.5.1",
+    "node-fetch": "^2.6.0",
     "ts-node": "^8.3.0",
     "tsconfig-paths": "^3.8.0",
     "typescript": "^3.6.2"
   },
   "scripts": {
-    "build": "ts-node -r tsconfig-paths/register src/build.ts"
+    "build": "ts-node -r tsconfig-paths/register src/build-cli.ts",
+    "deploy": "ts-node -r tsconfig-paths/register src/deploy-cli.ts"
   }
 }

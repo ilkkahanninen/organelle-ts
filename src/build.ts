@@ -1,6 +1,8 @@
 const depTree = require('dependency-tree')
 const fs = require('fs')
 
+export const getBuildPath = (patch: string) => `./build/${patch}`
+
 export const buildPatch = (entryFile: string, buildPath: string) => {
   const list = depTree.toList({
     filename: entryFile,
@@ -24,15 +26,16 @@ export const buildPatch = (entryFile: string, buildPath: string) => {
   })
 }
 
-const patch = process.argv[2]
-if (patch) {
-  const entryFile = `./patches/${patch}/main.ts`
-  const buildPath = `./build/${patch}`
-  if (fs.existsSync(entryFile)) {
-    buildPatch(entryFile, buildPath)
+export const buildPatchCmd = (patch?: string) => {
+  if (patch) {
+    const entryFile = `./patches/${patch}/main.ts`
+    const buildPath = getBuildPath(patch)
+    if (fs.existsSync(entryFile)) {
+      buildPatch(entryFile, buildPath)
+    } else {
+      console.error(`ERROR: ${entryFile} does not exist`)
+    }
   } else {
-    console.error(`ERROR: ${entryFile} does not exist`)
+    console.log('USAGE: yarn build [patchname]')
   }
-} else {
-  console.log('USAGE: yarn build [patchname]')
 }
