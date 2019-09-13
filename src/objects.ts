@@ -42,9 +42,11 @@ export const Select2 = objCreator2('select', <const>['value'], <const>['eq1', 'e
 // TODO: Lisää variantteja
 
 
-export const Osc = objCreator('osc~', <const>['freq'], <const>['$'])
+export const Osc = objCreator('osc~', <const>['freq$'], <const>['$'])
 export const DAC = objCreator('dac~', <const>['left$', 'right$'], <const>[])
 export const Loadbang = objCreator('loadbang', <const>[], <const>[])
+export const Multiply = objCreator('*', <const>['left', 'right'], <const>['$'])
 export const Multiply$ = objCreator('*~', <const>['left$', 'right$'], <const>['$'])
+export const LPF = objCreator('lop~', <const>['signal$', 'freq'], <const>['signal$'])
 
 export const Throw$ = objCreator('throw~', <const>['data'], <const>[''])
