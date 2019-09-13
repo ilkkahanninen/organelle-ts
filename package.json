@@ -11,6 +11,6 @@
     "typescript": "^3.6.2"
   },
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register build.ts"
+    "build": "ts-node -r tsconfig-paths/register src/build.ts"
   }
 }
