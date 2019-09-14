@@ -22,7 +22,7 @@ import { times } from "@pd/utils"
 export const SimpleOsc = createModule(
   "SimpleOsc",
   <const>["notes"],
-  <const>["out$"],
+  <const>["left$", "right$"],
   ({ inlets, outlets }) => {
     const { note, velocity } = unpackNotes(inlets.notes)
     const initialPhase = Random(Loadbang())
@@ -50,7 +50,12 @@ export const SimpleOsc = createModule(
       )
     )
 
-    const osc = Divide$(oscs, 5)
+    const leftOscs = oscs.map((osc, index) =>
+      Multiply$(osc, 0.2 * (0.8 - index / 5))
+    )
+    const rightOscs = oscs.map((osc, index) =>
+      Multiply$(osc, (0.2 * index) / 5)
+    )
 
     // Velocity
     const noteOff = Select(velocity, 0)
@@ -59,8 +64,10 @@ export const SimpleOsc = createModule(
       Pack("f f", noteOff.out.match, releaseTime) // Release
     ])
 
-    const out = Multiply$({ left$: osc, right$: oscVelocity })
+    const leftOut = Multiply$({ left$: leftOscs, right$: oscVelocity })
+    const rightOut = Multiply$({ left$: rightOscs, right$: oscVelocity })
 
-    outlets.out$.connect({ data: out })
+    outlets.left$.connect({ data: leftOut })
+    outlets.right$.connect({ data: rightOut })
   }
 )

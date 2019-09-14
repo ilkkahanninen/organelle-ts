@@ -150,3 +150,16 @@ export const Cos$ = objCreator("cos~", <const>["in$"], <const>["$"])
 export const Pow = objCreator("pow", <const>["base", "power"], <const>["value"])
 export const Pow$ = objCreator("pow~", <const>["base$", "power$"], <const>["$"])
 export const Random = objCreator("random", <const>["n"], <const>["value"])
+
+export const Reverb3 = objCreator(
+  "rev3~",
+  <const>[
+    "left$",
+    "right$",
+    "levelDb",
+    "liveness",
+    "crossoverFreq",
+    "hfDamping"
+  ],
+  <const>["left$", "right$"]
+)

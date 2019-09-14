@@ -1,8 +1,8 @@
-import { Multiply, Add, Int, Send, Pow } from "@pd/objects"
+import { Multiply, Add, Int, Send, Pow, Reverb3 } from "@pd/objects"
 import { createMainModule } from "@pd/module"
 import { OutLeft, OutRight, Knob, ScreenLine, MidiNotes } from "@pd/organelle"
 import { msg } from "@pd/core"
-import { polyphonic } from "@pd/helpers"
+import { polyphonic, polyphonicStereo } from "@pd/helpers"
 import { SimpleOsc } from "./SimpleOsc"
 
 export const main = createMainModule(() => {
@@ -19,11 +19,17 @@ export const main = createMainModule(() => {
   Send(modulation, "modulation")
 
   // Polyphonic oscillator
-  const synth = polyphonic(6, 1, MidiNotes(), SimpleOsc)
+  const synth = polyphonicStereo(6, 1, MidiNotes(), SimpleOsc)
+
+  // Reverb
+  const reverb = Reverb3(
+    { left$: synth.left, right$: synth.right },
+    "100 90 3000 20"
+  )
 
   // Audio out
-  OutLeft(synth)
-  OutRight(synth)
+  OutLeft(reverb.out.left$)
+  OutRight(reverb.out.right$)
 
   // Screen
   ScreenLine(1, msg("Attack $1 ms", Int(attackTime)))
