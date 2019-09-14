@@ -7,9 +7,9 @@ import { polyphonic } from "@pd/helpers"
 
 export const main = createMainModule(() => {
   // Knobs
-  const attackTime = Add(Multiply(Knob(1), 3000), 10)
-  const releaseTime = Add(Multiply(Knob(2), 5000), 10)
-  const glideTime = Multiply(Knob(3), 1000)
+  const attackTime = Add(Multiply(Knob(1), 3000), 3)
+  const releaseTime = Add(Multiply(Knob(2), 5000), 3)
+  const glideTime = Multiply(Knob(3), 300)
   const modulation = Multiply(Pow(Knob(4), 2), 20)
 
   // Globals
