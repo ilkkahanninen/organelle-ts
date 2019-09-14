@@ -1,11 +1,9 @@
-import { objCreator } from "@pd/core"
+import { objCreator, Connectables } from "@pd/core"
 import { Unpack } from "@pd/objects"
 
 // Knobs
-export const Knob1 = objCreator("r knob1", <const>[], <const>["value"])
-export const Knob2 = objCreator("r knob2", <const>[], <const>["value"])
-export const Knob3 = objCreator("r knob3", <const>[], <const>["value"])
-export const Knob4 = objCreator("r knob4", <const>[], <const>["value"])
+export const Knob = (n: number) =>
+  objCreator(`r knob${n}`, <const>[], <const>["value"])()
 export const VolKnob = objCreator("r vol", <const>[], <const>["value"])
 export const ExprPedal = objCreator("r exp", <const>[], <const>["value"])
 
@@ -22,6 +20,10 @@ export const InLeft = objCreator("r~ outL", <const>["audio"], <const>[])
 export const InRight = objCreator("r~ outR", <const>["audio"], <const>[])
 export const OutLeft = objCreator("throw~ outL", <const>["audio"], <const>[])
 export const OutRight = objCreator("throw~ outR", <const>["audio"], <const>[])
+
+// Screen
+export const ScreenLine = (n: number, input?: Connectables) =>
+  objCreator(`s screenLine${n}`, <const>["text"], <const>[])(input)
 
 // Utils
 export const getMidiNotes = () => {

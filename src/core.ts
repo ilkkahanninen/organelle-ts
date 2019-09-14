@@ -22,9 +22,9 @@ export type Connection = {
 
 type Connectable = PdElement<any, any> | PortMapping
 
-type Connectables = Connectable | Connectable[]
+export type Connectables = Connectable | Connectable[]
 
-type ConnectablesMap<T extends EmptySet> = Partial<
+export type ConnectablesMap<T extends EmptySet> = Partial<
   Record<T[number], Connectables>
 >
 

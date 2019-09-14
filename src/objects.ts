@@ -1,4 +1,4 @@
-import { objCreator, objCreator2 } from "./core"
+import { objCreator, objCreator2, ConnectablesMap, Connectables } from "./core"
 
 //----------------------------------------------------------------------------
 // GENERAL
@@ -44,7 +44,8 @@ export const Send = objCreator("send", <const>["message", "name"], <const>[])
 /**
  * Catch sent messages
  */
-export const Receive = objCreator("receive", <const>[], <const>["message"])
+export const Receive = (name: string) =>
+  objCreator("receive", <const>[], <const>["message"])(undefined, name)
 
 /**
  * Test for matchin numbers or symbols
@@ -90,3 +91,16 @@ export const Line$ = objCreator(
   <const>["message", "rampTime", "grain"],
   <const>["value"]
 )
+
+export const Pack = (format: string, ...inlets: Array<Connectables>) =>
+  objCreator(
+    "pack",
+    <const>["i0", "i1", "i2", "i3", "i4", "i5", "i6", "i7"],
+    <const>["message"]
+  )(
+    inlets.reduce(
+      (obj, value, index) => ({ ...obj, [`i${index}`]: value }),
+      {}
+    ),
+    format
+  )

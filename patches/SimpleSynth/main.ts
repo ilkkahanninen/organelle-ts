@@ -1,24 +1,37 @@
-import { Multiply$, MidiToFreq, Osc, Select, Divide, Line$ } from "@pd/objects"
+import { Multiply, Add, Int, Send } from "@pd/objects"
 import { createMainModule } from "@pd/module"
-import { OutLeft, OutRight, getMidiNotes } from "@pd/organelle"
+import {
+  OutLeft,
+  OutRight,
+  getMidiNotes,
+  Knob,
+  ScreenLine
+} from "@pd/organelle"
 import { msg } from "@pd/core"
+import { SimpleOsc } from "patches/SimpleSynth/SimpleOsc"
 
 export const main = createMainModule(() => {
   const { note, velocity } = getMidiNotes()
 
+  // Knobs
+  const attackTime = Add(Multiply(Knob(1), 3000), 10)
+  const releaseTime = Add(Multiply(Knob(2), 5000), 10)
+  const glideTime = Multiply(Knob(3), 1000)
+
+  // Globals
+  Send(attackTime, "attack")
+  Send(releaseTime, "release")
+  Send(glideTime, "glide")
+
   // Oscillator
-  const osc = Osc(MidiToFreq(note))
+  const osc = SimpleOsc({ note, velocity })
 
-  // Attentuator
-  const noteOnOff = Select(velocity, 0)
+  // Audio out
+  OutLeft(osc.out.out$)
+  OutRight(osc.out.out$)
 
-  const oscVelocity = Line$([
-    msg("0 10", noteOnOff.out.match),
-    msg("$1 10", Divide(noteOnOff.out.else, 127))
-  ])
-
-  const out = Multiply$({ left$: osc, right$: oscVelocity })
-
-  OutLeft(out)
-  OutRight(out)
+  // Screen
+  ScreenLine(1, msg("Attack $1 ms", Int(attackTime)))
+  ScreenLine(2, msg("Release $1 ms", Int(releaseTime)))
+  ScreenLine(3, msg("Glide $1 ms", Int(glideTime)))
 })
