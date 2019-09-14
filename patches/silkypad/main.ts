@@ -2,8 +2,8 @@ import { Multiply, Add, Int, Send, Pow } from "@pd/objects"
 import { createMainModule } from "@pd/module"
 import { OutLeft, OutRight, Knob, ScreenLine, MidiNotes } from "@pd/organelle"
 import { msg } from "@pd/core"
-import { SimpleOsc } from "patches/SimpleSynth/SimpleOsc"
 import { polyphonic } from "@pd/helpers"
+import { SimpleOsc } from "./SimpleOsc"
 
 export const main = createMainModule(() => {
   // Knobs

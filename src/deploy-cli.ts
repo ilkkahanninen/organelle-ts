@@ -2,13 +2,16 @@ import fs from "fs"
 import { promisify } from "util"
 import { createOrganelleFileClient } from "./organelle-file-client"
 import { getBuildPath, buildPatch, buildPatchCmd } from "./build"
+import { loadConfig } from "./patch-config"
 
 const readDir = promisify(fs.readdir)
 
 async function uploadPatch(deviceAdress: string, patch: string) {
+  const config = loadConfig(patch)
   const client = createOrganelleFileClient(deviceAdress)
 
-  const targetPath = `/sdcard/Patches/${patch}`
+  const targetPath =
+    "/" + ["sdcard", "Patches", config.folder, config.name].join("/")
   const buildPath = getBuildPath(patch)
   const files = (await readDir(buildPath)).map(file => `${buildPath}/${file}`)
 
