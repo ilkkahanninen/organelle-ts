@@ -1,7 +1,7 @@
-import { Multiply$, Multiply, MidiToFreq, Osc, Select, Divide, Line$ } from "@pd/objects";
-import { createMainModule } from "@pd/module";
-import { OutLeft, OutRight, getMidiNotes } from "@pd/organelle";
-import { msg } from "@pd/core";
+import { Multiply$, MidiToFreq, Osc, Select, Divide, Line$ } from "@pd/objects"
+import { createMainModule } from "@pd/module"
+import { OutLeft, OutRight, getMidiNotes } from "@pd/organelle"
+import { msg } from "@pd/core"
 
 export const main = createMainModule(() => {
   const { note, velocity } = getMidiNotes()

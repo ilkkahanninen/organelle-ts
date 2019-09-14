@@ -1,19 +1,20 @@
-const depTree = require('dependency-tree')
-const fs = require('fs')
+const depTree = require("dependency-tree")
+const fs = require("fs")
 
 export const getBuildPath = (patch: string) => `./build/${patch}`
 
 export const buildPatch = (entryFile: string, buildPath: string) => {
   const list = depTree.toList({
     filename: entryFile,
-    directory: './patches',
-    tsConfig: './tsconfig.json',
-    filter: (path: string) => !path.includes('node_modules')
+    directory: "./patches",
+    tsConfig: "./tsconfig.json",
+    filter: (path: string) => !path.includes("node_modules")
   }) as string[]
 
-  const isPdModule = (x: any) => typeof x === 'function' && x.name === 'PdModule'
+  const isPdModule = (x: any) =>
+    typeof x === "function" && x.name === "PdModule"
 
-  fs.mkdirSync(buildPath, { recursive: true });
+  fs.mkdirSync(buildPath, { recursive: true })
 
   list.forEach(src => {
     const mod = require(src)
@@ -43,6 +44,6 @@ export const buildPatchCmd = (patch?: string) => {
       console.error(`ERROR: ${entryFile} does not exist`)
     }
   } else {
-    console.log('USAGE: yarn build [patchname]')
+    console.log("USAGE: yarn build [patchname]")
   }
 }

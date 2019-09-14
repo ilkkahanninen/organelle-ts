@@ -11,5 +11,5 @@ if (patch) {
     console.error(`ERROR: ${entryFile} does not exist`)
   }
 } else {
-  console.log('USAGE: yarn build [patchname]')
+  console.log("USAGE: yarn build [patchname]")
 }
