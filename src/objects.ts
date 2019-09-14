@@ -1,4 +1,4 @@
-import { objCreator, objCreator2, ConnectablesMap, Connectables } from "./core"
+import { objCreator, objCreator2, Connectables } from "./core"
 
 const variablePorts = <const>[
   "p0",
@@ -149,3 +149,4 @@ export const Route = objCreator("route", <const>["message"], variablePorts)
 export const Cos$ = objCreator("cos~", <const>["in$"], <const>["$"])
 export const Pow = objCreator("pow", <const>["base", "power"], <const>["value"])
 export const Pow$ = objCreator("pow~", <const>["base$", "power$"], <const>["$"])
+export const Random = objCreator("random", <const>["n"], <const>["value"])

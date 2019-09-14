@@ -9,10 +9,11 @@ import {
   Phasor,
   Cos$,
   Pow$,
-  LPF,
   Osc,
   Add$,
-  Divide$
+  Divide$,
+  Loadbang,
+  Random
 } from "@pd/objects"
 import { createModule } from "@pd/module"
 import { unpackNotes, Knob } from "@pd/organelle"
@@ -23,8 +24,8 @@ export const SimpleOsc = createModule(
   <const>["notes"],
   <const>["out$"],
   ({ inlets, outlets }) => {
-    //
     const { note, velocity } = unpackNotes(inlets.notes)
+    const initialPhase = Random(Loadbang())
 
     // Knobs
     const attackTime = Receive("attack")
@@ -37,9 +38,13 @@ export const SimpleOsc = createModule(
     const oscs = times(5, index =>
       Cos$(
         Pow$({
-          base$: Phasor(
-            Multiply$(freq, 1 + index * 0.001 * (index % 2 === 0 ? 1 : -1))
-          ),
+          base$: Phasor({
+            freq$: Multiply$(
+              freq,
+              1 + index * 0.001 * (index % 2 === 0 ? 1 : -1)
+            ),
+            phase$: initialPhase
+          }),
           power$: Add$(Osc(modulation), 1.5)
         })
       )
