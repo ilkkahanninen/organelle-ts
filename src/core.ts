@@ -139,7 +139,7 @@ const createPdElement = <I extends EmptySet, O extends EmptySet>(
 }
 
 const toCtor = (name: string, value?: any) =>
-  value === undefined ? name : `${name} ${ensureArray(value).join(" ")}`
+  value === "" ? name : `${name} ${ensureArray(value).join(" ")}`
 
 const msgInlets = <const>["trigger"]
 const msgOutlets = <const>["value"]
@@ -169,3 +169,8 @@ export const objCreator2 = <A extends EmptySet, B extends EmptySet>(
   value: Tuple2
 ): PdElement<A, B> =>
   createPdElement("obj", toCtor(name, value), inlets, inletNames, outletNames)
+
+export const firstPort = (element: PdElement<any, any>): PortMapping => ({
+  element,
+  portIndex: 0
+})

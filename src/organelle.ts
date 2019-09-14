@@ -1,5 +1,5 @@
-import { objCreator, Connectables, PdElement } from "@pd/core"
-import { Unpack } from "@pd/objects"
+import { objCreator, Connectables, PdElement, msg } from "@pd/core"
+import { Unpack, Bang, Select } from "@pd/objects"
 
 // Knobs
 export const Knob = (n: number) =>
@@ -24,6 +24,8 @@ export const OutRight = objCreator("throw~ outR", <const>["audio"], <const>[])
 // Screen
 export const ScreenLine = (n: number, input?: Connectables) =>
   objCreator(`s screenLine${n}`, <const>["text"], <const>[])(input)
+export const LED = (color: number, input: Connectables) =>
+  objCreator("s led", <const>["color"], <const>[])(msg(color, input))
 
 // Utils
 export const unpackNotes = (input: PdElement<any, any>) => {
@@ -33,3 +35,5 @@ export const unpackNotes = (input: PdElement<any, any>) => {
     velocity: midi.out.v2
   }
 }
+
+export const AuxButtonClick = () => Bang(Select(AuxButton(), 1))

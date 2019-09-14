@@ -83,6 +83,18 @@ export const Select2 = objCreator2(
 )
 // TODO: Lisää variantteja
 
+export const Spigot = objCreator(
+  "spigot",
+  <const>["value", "pass"],
+  <const>["value"]
+)
+
+export const Equals = objCreator(
+  "==",
+  <const>["left", "right"],
+  <const>["result"]
+)
+
 export const Osc = objCreator("osc~", <const>["freq$", "phase$"], <const>["$"])
 export const Phasor = objCreator(
   "phasor~",
@@ -150,6 +162,11 @@ export const Cos$ = objCreator("cos~", <const>["in$"], <const>["$"])
 export const Pow = objCreator("pow", <const>["base", "power"], <const>["value"])
 export const Pow$ = objCreator("pow~", <const>["base$", "power$"], <const>["$"])
 export const Random = objCreator("random", <const>["n"], <const>["value"])
+export const Mod = objCreator(
+  "mod",
+  <const>["dividend", "divisor"],
+  <const>["value"]
+)
 
 export const Reverb3 = objCreator(
   "rev3~",
@@ -163,3 +180,5 @@ export const Reverb3 = objCreator(
   ],
   <const>["left$", "right$"]
 )
+
+export const Print = objCreator("print", <const>["message"], <const>[])

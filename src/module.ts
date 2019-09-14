@@ -69,31 +69,34 @@ export const createModule = <I extends EmptySet, O extends EmptySet>(
     const rowCount = Math.ceil(elements.length / elementsByRow)
     const width = padding * 2 + xSpacing * elementsByRow
     const height = padding + (2 + rowCount) * ySpacing
+    const renderCtor = (c: string) => (c !== "" ? ` ${c}` : "")
 
     return [
       `#N canvas 100 100 ${width} ${height} 10`,
       ...inlets.map(
         (e, i) =>
-          `#X ${e.elementType} ${padding + i * xSpacing} ${padding} ${
+          `#X ${e.elementType} ${padding + i * xSpacing} ${padding}${renderCtor(
             e.ctorString
-          }`
+          )}`
       ),
       ...elements.map(
         (e, i) =>
           `#X ${e.elementType} ${padding +
             (i % elementsByRow) * xSpacing} ${padding +
-            ySpacing * (Math.floor(i / elementsByRow) + 1)} ${e.ctorString}`
+            ySpacing * (Math.floor(i / elementsByRow) + 1)}${renderCtor(
+            e.ctorString
+          )}`
       ),
       ...outlets.map(
         (e, i) =>
           `#X ${e.elementType} ${padding + i * xSpacing} ${padding +
-            ySpacing * (rowCount + 1)} ${e.ctorString}`
+            ySpacing * (rowCount + 1)}${renderCtor(e.ctorString)}`
       ),
       ...parseConnections([...inlets, ...elements, ...outlets]).map(
         c => `#X connect ${c.join(" ")}`
       )
     ]
-      .map(line => `${line.trim()};`)
+      .map(line => `${line};`)
       .join("\r\n")
   }
 
