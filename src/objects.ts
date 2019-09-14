@@ -83,7 +83,12 @@ export const Select2 = objCreator2(
 )
 // TODO: Lisää variantteja
 
-export const Osc = objCreator("osc~", <const>["freq$"], <const>["$"])
+export const Osc = objCreator("osc~", <const>["freq$", "phase$"], <const>["$"])
+export const Phasor = objCreator(
+  "phasor~",
+  <const>["freq$", "phase$"],
+  <const>["$"]
+)
 export const DAC = objCreator("dac~", <const>["left$", "right$"], <const>[])
 export const Loadbang = objCreator("loadbang", <const>[], <const>[])
 export const Multiply = objCreator("*", <const>["left", "right"], <const>["$"])
@@ -140,3 +145,6 @@ export const Poly = objCreator(
 )
 
 export const Route = objCreator("route", <const>["message"], variablePorts)
+
+export const Cos$ = objCreator("cos~", <const>["in$"], <const>["$"])
+export const Pow$ = objCreator("pow~", <const>["base$", "power$"], <const>["$"])
