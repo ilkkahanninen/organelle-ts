@@ -1,4 +1,4 @@
-import { objCreator, Connectables } from "@pd/core"
+import { objCreator, Connectables, PdElement } from "@pd/core"
 import { Unpack } from "@pd/objects"
 
 // Knobs
@@ -26,8 +26,8 @@ export const ScreenLine = (n: number, input?: Connectables) =>
   objCreator(`s screenLine${n}`, <const>["text"], <const>[])(input)
 
 // Utils
-export const getMidiNotes = () => {
-  const midi = Unpack(MidiNotes())
+export const unpackNotes = (input: PdElement<any, any>) => {
+  const midi = Unpack(input)
   return {
     note: midi.out.v1,
     velocity: midi.out.v2

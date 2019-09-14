@@ -1,5 +1,26 @@
 import { objCreator, objCreator2, ConnectablesMap, Connectables } from "./core"
 
+const variablePorts = <const>[
+  "p0",
+  "p1",
+  "p2",
+  "p3",
+  "p4",
+  "p5",
+  "p6",
+  "p7",
+  "p8",
+  "p9",
+  "p10",
+  "p11",
+  "p12",
+  "p13",
+  "p14",
+  "p15"
+]
+
+export type VariablePort = (typeof variablePorts)[number]
+
 //----------------------------------------------------------------------------
 // GENERAL
 //----------------------------------------------------------------------------
@@ -72,8 +93,19 @@ export const Multiply$ = objCreator(
   <const>["$"]
 )
 export const Divide = objCreator("/", <const>["left", "right"], <const>["$"])
+export const Divide$ = objCreator(
+  "/~",
+  <const>["left$", "right$"],
+  <const>["$"]
+)
 export const Add = objCreator("+", <const>["left", "right"], <const>["$"])
+export const Add$ = objCreator("+~", <const>["left$", "right$"], <const>["$"])
 export const Subtract = objCreator("-", <const>["left", "right"], <const>["$"])
+export const Subtract$ = objCreator(
+  "-~",
+  <const>["left$", "right$"],
+  <const>["$"]
+)
 export const LPF = objCreator(
   "lop~",
   <const>["signal$", "freq"],
@@ -93,14 +125,18 @@ export const Line$ = objCreator(
 )
 
 export const Pack = (format: string, ...inlets: Array<Connectables>) =>
-  objCreator(
-    "pack",
-    <const>["i0", "i1", "i2", "i3", "i4", "i5", "i6", "i7"],
-    <const>["message"]
-  )(
+  objCreator("pack", variablePorts, <const>["message"])(
     inlets.reduce(
-      (obj, value, index) => ({ ...obj, [`i${index}`]: value }),
+      (obj, value, index) => ({ ...obj, [`p${index}`]: value }),
       {}
     ),
     format
   )
+
+export const Poly = objCreator(
+  "poly",
+  <const>["polyphony", "noteStealing"],
+  <const>["index", "note", "velocity"]
+)
+
+export const Route = objCreator("route", <const>["message"], variablePorts)

@@ -1,18 +1,11 @@
 import { Multiply, Add, Int, Send } from "@pd/objects"
 import { createMainModule } from "@pd/module"
-import {
-  OutLeft,
-  OutRight,
-  getMidiNotes,
-  Knob,
-  ScreenLine
-} from "@pd/organelle"
+import { OutLeft, OutRight, Knob, ScreenLine, MidiNotes } from "@pd/organelle"
 import { msg } from "@pd/core"
 import { SimpleOsc } from "patches/SimpleSynth/SimpleOsc"
+import { polyphonic } from "@pd/helpers"
 
 export const main = createMainModule(() => {
-  const { note, velocity } = getMidiNotes()
-
   // Knobs
   const attackTime = Add(Multiply(Knob(1), 3000), 10)
   const releaseTime = Add(Multiply(Knob(2), 5000), 10)
@@ -23,12 +16,12 @@ export const main = createMainModule(() => {
   Send(releaseTime, "release")
   Send(glideTime, "glide")
 
-  // Oscillator
-  const osc = SimpleOsc({ note, velocity })
+  // Polyphonic oscillator
+  const synth = polyphonic(6, 1, MidiNotes(), SimpleOsc)
 
   // Audio out
-  OutLeft(osc.out.out$)
-  OutRight(osc.out.out$)
+  OutLeft(synth)
+  OutRight(synth)
 
   // Screen
   ScreenLine(1, msg("Attack $1 ms", Int(attackTime)))

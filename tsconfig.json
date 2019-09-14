@@ -6,9 +6,7 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@pd/*": [
-        "./src/*"
-      ]
+      "@pd/*": ["./src/*"]
     }
   }
 }
