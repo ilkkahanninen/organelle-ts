@@ -3,3 +3,8 @@ export const ensureArray = <T>(n?: T | T[]): T[] =>
 
 export const unnest = <T>(arr: T[][]): T[] =>
   arr.reduce((a, n) => [...a, ...n], [])
+
+export const times = <T>(count: number, fn: (index: number) => T) =>
+  Array(count)
+    .fill(0)
+    .map((_, i) => fn(i))

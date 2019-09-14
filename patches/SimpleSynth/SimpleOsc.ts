@@ -11,10 +11,12 @@ import {
   Pow$,
   LPF,
   Osc,
-  Add$
+  Add$,
+  Divide$
 } from "@pd/objects"
 import { createModule } from "@pd/module"
 import { unpackNotes, Knob } from "@pd/organelle"
+import { times } from "@pd/utils"
 
 export const SimpleOsc = createModule(
   "SimpleOsc",
@@ -32,11 +34,18 @@ export const SimpleOsc = createModule(
 
     // Oscillator
     const freq = Line$(Pack("f f", MidiToFreq(note), glideTime))
-    const phase = Pow$({
-      base$: Phasor(freq),
-      power$: Add$(Osc(modulation), 1.5)
-    })
-    const osc = Cos$(phase)
+    const oscs = times(5, index =>
+      Cos$(
+        Pow$({
+          base$: Phasor(
+            Multiply$(freq, 1 + index * 0.001 * (index % 2 === 0 ? 1 : -1))
+          ),
+          power$: Add$(Osc(modulation), 1.5)
+        })
+      )
+    )
+
+    const osc = Divide$(oscs, 5)
 
     // Velocity
     const noteOff = Select(velocity, 0)

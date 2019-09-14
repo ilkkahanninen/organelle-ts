@@ -1,4 +1,4 @@
-import { Multiply, Add, Int, Send } from "@pd/objects"
+import { Multiply, Add, Int, Send, Pow } from "@pd/objects"
 import { createMainModule } from "@pd/module"
 import { OutLeft, OutRight, Knob, ScreenLine, MidiNotes } from "@pd/organelle"
 import { msg } from "@pd/core"
@@ -10,7 +10,7 @@ export const main = createMainModule(() => {
   const attackTime = Add(Multiply(Knob(1), 3000), 10)
   const releaseTime = Add(Multiply(Knob(2), 5000), 10)
   const glideTime = Multiply(Knob(3), 1000)
-  const modulation = Multiply(Knob(4), 20)
+  const modulation = Multiply(Pow(Knob(4), 2), 20)
 
   // Globals
   Send(attackTime, "attack")
