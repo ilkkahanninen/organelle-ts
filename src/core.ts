@@ -20,7 +20,7 @@ export type Connection = {
   target: PortMapping
 }
 
-type Connectable = PdElement<any, any> | PortMapping
+export type Connectable = PdElement<any, any> | PortMapping
 
 export type Connectables = Connectable | Connectable[]
 

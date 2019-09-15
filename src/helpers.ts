@@ -1,5 +1,11 @@
-import { Poly, Pack, Route, VariablePort, Add$ } from "@pd/objects"
-import { Connectables, PdElement, PortMapping, msg } from "@pd/core"
+import { Poly, Pack, Route, VariablePort, Add$, Bang } from "@pd/objects"
+import {
+  Connectables,
+  PdElement,
+  PortMapping,
+  msg,
+  Connectable
+} from "@pd/core"
 
 const createPolyRouter = (
   polyphony: number,
@@ -54,4 +60,10 @@ export const polyphonicStereo = (
   }
 
   return { left, right }
+}
+
+export const hotPack = (format: string, ...inlets: Array<Connectable>) => {
+  const coldConnections = inlets.slice(1)
+  const bang = Bang(coldConnections)
+  return Pack(format, [inlets[0], bang], ...coldConnections)
 }

@@ -13,11 +13,16 @@ import {
   Add$,
   Divide$,
   Loadbang,
-  Random
+  Random,
+  Add,
+  LPF,
+  Print,
+  Multiply
 } from "@pd/objects"
 import { createModule } from "@pd/module"
 import { unpackNotes, Knob } from "@pd/organelle"
 import { times } from "@pd/utils"
+import { hotPack } from "@pd/helpers"
 
 export const SimpleOsc = createModule(
   "SimpleOsc",
@@ -31,21 +36,35 @@ export const SimpleOsc = createModule(
     const attackTime = Receive("attack")
     const releaseTime = Receive("release")
     const glideTime = Receive("glide")
-    const modulation = Receive("modulation")
+    const phaseShape$ = LPF(Receive("oscPhaseShape"), 1)
+    const modulation$ = LPF(Receive("oscPhaseModFreq"), 1)
+    const modulationAmount$ = LPF(Receive("oscPhaseModAmount"), 1)
+    const detune$ = LPF(Receive("oscDetune"), 1)
 
     // Oscillator
-    const freq = Line$(Pack("f f", MidiToFreq(note), glideTime))
+    const freq$ = Line$(Pack("f f", MidiToFreq(note), glideTime))
+    const phaseBase$ = Add$({ left$: phaseShape$, right$: modulationAmount$ })
+
     const oscs = times(5, index =>
       Cos$(
         Pow$({
           base$: Phasor({
-            freq$: Multiply$(
-              freq,
-              1 + index * 0.001 * (index % 2 === 0 ? 1 : -1)
-            ),
+            freq$: Multiply$({
+              left$: freq$,
+              right$: Add$(
+                Multiply$(detune$, index * (index % 2 === 0 ? 1 : -1)),
+                1
+              )
+            }),
             phase$: initialPhase
           }),
-          power$: Add$(Osc(modulation), 1.5)
+          power$: Add$({
+            left$: Multiply$({
+              left$: Osc(modulation$),
+              right$: modulationAmount$
+            }),
+            right$: phaseBase$
+          })
         })
       )
     )

@@ -1,4 +1,4 @@
-import { objCreator, objCreator2, Connectables } from "./core"
+import { objCreator, objCreator2, Connectables, Connectable } from "./core"
 
 const variablePorts = <const>[
   "p0",
@@ -178,7 +178,7 @@ export const Reverb3 = objCreator(
     "crossoverFreq",
     "hfDamping"
   ],
-  <const>["left$", "right$"]
+  <const>["left$", "right$", "out3$", "out4$"]
 )
 
 export const Print = objCreator("print", <const>["message"], <const>[])
