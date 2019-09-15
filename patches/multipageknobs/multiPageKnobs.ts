@@ -7,9 +7,9 @@ import {
   Mod,
   Float,
   Send,
-  Receive,
   Spigot,
-  Equals
+  Equals,
+  Delay
 } from "@pd/objects"
 import { ScreenLine, AuxButtonClick, Knob, LED } from "@pd/organelle"
 import { msg, PdElement, PortMapping, firstPort } from "@pd/core"
@@ -18,6 +18,7 @@ import { times } from "@pd/utils"
 export type MultiPageLine = {
   name: string
   render: string
+  initialValue: number
   convert?: (value: PortMapping) => PdElement<any, any>
   toViewValue?: (value: PortMapping) => PdElement<any, any>
 }
@@ -41,6 +42,7 @@ export const createMultiPageKnobs = (
 ) => {
   // Controls
   const init = Loadbang()
+  const delayedInit = Int(Delay(init, 200), 1)
   const auxClick = AuxButtonClick()
   const knobs = times(4, i => Knob(i + 1))
 
@@ -63,15 +65,24 @@ export const createMultiPageKnobs = (
       const screenLineIndex = lineIndex + 2
 
       if (line) {
+        // Inputs
         const virtualKnob = Spigot({ value: knob, pass: thisPageIsSelected })
+        const initialValue = msg(line.initialValue, delayedInit)
+
+        // Convert knob range to desired range
         const convertedValue = line.convert
           ? line.convert(firstPort(virtualKnob))
           : virtualKnob
-        Send(convertedValue, line.name)
+        Send([convertedValue, initialValue], line.name)
+
+        // Output to screen
         const viewValue = Float([
           line.toViewValue
             ? line.toViewValue(firstPort(convertedValue))
             : convertedValue,
+          line.toViewValue
+            ? line.toViewValue(firstPort(initialValue))
+            : initialValue,
           onPageSelect
         ])
         ScreenLine(

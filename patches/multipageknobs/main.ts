@@ -11,12 +11,14 @@ export const main = createMainModule(() => {
           name: "attack",
           render: "o Attack $1 ms",
           convert: value => Multiply(value, 1000),
+          initialValue: 100,
           toViewValue: Int
         },
         {
           name: "release",
           render: "o Release $1 ms",
           convert: value => Multiply(value, 2000),
+          initialValue: 500,
           toViewValue: Int
         }
       ]
@@ -27,20 +29,20 @@ export const main = createMainModule(() => {
         {
           name: "saw",
           render: "o Saw $1%",
-          convert: value => Multiply(value, 100),
-          toViewValue: Int
+          initialValue: 0.5,
+          toViewValue: value => Int(Multiply(value, 100))
         },
         {
           name: "square",
           render: "o Square $1%",
-          convert: value => Multiply(value, 100),
-          toViewValue: Int
+          initialValue: 0.75,
+          toViewValue: value => Int(Multiply(value, 100))
         },
         {
           name: "triangle",
           render: "o Triangle $1%",
-          convert: value => Multiply(value, 100),
-          toViewValue: Int
+          initialValue: 0.25,
+          toViewValue: value => Int(Multiply(value, 100))
         }
       ]
     }

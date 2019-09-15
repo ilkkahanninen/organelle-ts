@@ -182,3 +182,9 @@ export const Reverb3 = objCreator(
 )
 
 export const Print = objCreator("print", <const>["message"], <const>[])
+
+export const Delay = objCreator(
+  "delay",
+  <const>["message", "delay"],
+  <const>["message"]
+)

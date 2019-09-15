@@ -16,8 +16,8 @@ export const MidiNotes = objCreator(
 )
 
 // Audio I/O
-export const InLeft = objCreator("r~ outL", <const>["audio"], <const>[])
-export const InRight = objCreator("r~ outR", <const>["audio"], <const>[])
+export const InLeft = objCreator("r~ outL", <const>[], <const>["audio"])
+export const InRight = objCreator("r~ outR", <const>[], <const>["audio"])
 export const OutLeft = objCreator("throw~ outL", <const>["audio"], <const>[])
 export const OutRight = objCreator("throw~ outR", <const>["audio"], <const>[])
 
