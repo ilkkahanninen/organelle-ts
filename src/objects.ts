@@ -94,6 +94,16 @@ export const Equals = objCreator(
   <const>["left", "right"],
   <const>["result"]
 )
+export const LessThan = objCreator(
+  "<",
+  <const>["left", "right"],
+  <const>["result"]
+)
+export const GreaterThan = objCreator(
+  ">",
+  <const>["left", "right"],
+  <const>["result"]
+)
 
 export const Osc = objCreator("osc~", <const>["freq$", "phase$"], <const>["$"])
 export const Phasor = objCreator(
@@ -128,18 +138,31 @@ export const LPF = objCreator(
   <const>["signal$", "freq"],
   <const>["signal$"]
 )
-export const Throw$ = objCreator("throw~", <const>["data"], <const>[""])
+export const Throw$ = objCreator("throw~", <const>["data"], <const>[])
 export const Unpack = objCreator(
   "unpack",
   <const>["message"],
   <const>["v1", "v2"]
 )
 export const MidiToFreq = objCreator("mtof", <const>["note"], <const>["freq"])
+export const MakeNote = objCreator(
+  "makenote",
+  <const>["note", "velocity", "duration"],
+  <const>["note", "velocity"]
+)
+export const MidiOut = objCreator(
+  "noteout",
+  <const>["note", "velocity", "channel"],
+  <const>[]
+)
 export const Line$ = objCreator(
   "line~",
   <const>["message", "rampTime", "grain"],
   <const>["value"]
 )
+
+export const Trigger = (format: string, input: Connectables) =>
+  objCreator("t", <const>["value"], variablePorts)(input, format)
 
 export const Pack = (format: string, ...inlets: Array<Connectables>) =>
   objCreator("pack", variablePorts, <const>["message"])(
@@ -187,4 +210,10 @@ export const Delay = objCreator(
   "delay",
   <const>["message", "delay"],
   <const>["message"]
+)
+
+export const Metronome = objCreator(
+  "metro",
+  <const>["message", "rate"],
+  <const>["tick"]
 )
