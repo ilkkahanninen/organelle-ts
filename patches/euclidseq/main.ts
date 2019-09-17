@@ -3,7 +3,7 @@ import { Parameters } from "./Parameters"
 import { Track } from "./Track"
 import { Receive, Loadbang } from "@pd/objects"
 import { msg } from "@pd/core"
-import { drumSynths } from "patches/euclidseq/config"
+import { drumSynths, midiChannel } from "patches/euclidseq/config"
 import { MidiTrack } from "patches/euclidseq/MidiTrack"
 import { Clock } from "patches/euclidseq/Clock"
 
@@ -12,7 +12,7 @@ export const main = createMainModule(() => {
   Clock()
 
   const init = Loadbang()
-  const midiCh = msg(0, init)
+  const midiCh = msg(midiChannel, init)
 
   const accent = Track({
     fill: Receive("fillAccent"),
