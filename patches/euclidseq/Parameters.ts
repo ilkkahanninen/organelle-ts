@@ -40,7 +40,7 @@ export const Parameters = createModule("Parameters", [], [], () =>
             name: "ticksPerMinute",
             render: "Ticks/min $1",
             initialValue: 120,
-            convert: value => Add(Multiply(value, 250), 1),
+            convert: value => Add(Multiply(value, 500), 1),
             toViewValue: Int
           },
           {

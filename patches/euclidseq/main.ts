@@ -1,34 +1,24 @@
 import { createMainModule } from "@pd/module"
+import { Clock } from "./Clock"
 import { Parameters } from "./Parameters"
-import { Track } from "./Track"
-import { Receive, Loadbang } from "@pd/objects"
-import { msg } from "@pd/core"
-import { drumSynths, midiChannel } from "patches/euclidseq/config"
-import { MidiTrack } from "patches/euclidseq/MidiTrack"
-import { Clock } from "patches/euclidseq/Clock"
+import { Sequencer } from "patches/euclidseq/Sequencer"
+import { InLeft, InRight, OutLeft, OutRight } from "@pd/organelle"
+import { Osc, Multiply$, Divide$, Random, Receive } from "@pd/objects"
 
 export const main = createMainModule(() => {
   Parameters()
   Clock()
+  Sequencer()
 
-  const init = Loadbang()
-  const midiCh = msg(midiChannel, init)
+  const drySignal = InLeft()
+  const wetSignal = InRight()
 
-  const accent = Track({
-    fill: Receive("fillAccent"),
-    offset: Receive("fillOffset")
-  })
-  const accentVelocity = msg(120, accent.out.hit)
-  const normalVelocity = msg(60, accent.out.rest)
-  const velocity = [accentVelocity, normalVelocity]
+  // Fx route test with fixed ring modulator
+  const freq = Random(Receive("accent"), 3000)
+  const osc = Osc(freq)
+  const fxOut = Multiply$({ left$: wetSignal, right$: osc })
+  const mix = Divide$([drySignal, fxOut], 2)
 
-  drumSynths.map((drum, index) =>
-    MidiTrack({
-      fill: Receive(`fill${index}`),
-      offset: Receive(`offset${index}`),
-      velocity,
-      note: msg(drum.note, init),
-      midiCh
-    })
-  )
+  OutLeft(mix)
+  OutRight(mix)
 })
