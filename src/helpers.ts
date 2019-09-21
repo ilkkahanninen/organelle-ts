@@ -1,4 +1,14 @@
-import { Poly, Pack, Route, VariablePort, Add$, Bang } from "@pd/objects"
+import {
+  Poly,
+  Pack,
+  Route,
+  VariablePort,
+  Add$,
+  Bang,
+  Int,
+  Mod,
+  Add
+} from "@pd/objects"
 import {
   Connectables,
   PdElement,
@@ -66,4 +76,11 @@ export const hotPack = (format: string, ...inlets: Array<Connectable>) => {
   const coldConnections = inlets.slice(1)
   const bang = Bang(coldConnections)
   return Pack(format, [inlets[0], bang], ...coldConnections)
+}
+
+export const rotatingCounter = (length: number, inputs: Connectables) => {
+  const counter = Int(inputs, 0)
+  const addCounter = Mod(Add(counter, 1), length)
+  counter.connect({ right: addCounter })
+  return counter
 }

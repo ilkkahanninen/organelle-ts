@@ -1,5 +1,5 @@
 import { objCreator, Connectables, PdElement, msg } from "@pd/core"
-import { Unpack, Bang, Select } from "@pd/objects"
+import { Unpack, Bang, Select, Receive, Send } from "@pd/objects"
 
 // Knobs
 export const Knob = (n: number) =>
@@ -26,6 +26,7 @@ export const ScreenLine = (n: number, input?: Connectables) =>
   objCreator(`s screenLine${n}`, <const>["text"], <const>[])(input)
 export const LED = (color: number, input: Connectables) =>
   objCreator("s led", <const>["color"], <const>[])(msg(color, input))
+export const GraphicsEnabled = () => Receive("gfxEnabled")
 
 // Utils
 export const unpackNotes = (input: PdElement<any, any>) => {

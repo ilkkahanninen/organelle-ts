@@ -104,6 +104,7 @@ export const GreaterThan = objCreator(
   <const>["left", "right"],
   <const>["result"]
 )
+export const Or = objCreator("||", <const>["left", "right"], <const>["result"])
 
 export const Osc = objCreator("osc~", <const>["freq$", "phase$"], <const>["$"])
 export const Phasor = objCreator(
@@ -217,3 +218,6 @@ export const Metronome = objCreator(
   <const>["message", "rate"],
   <const>["tick"]
 )
+
+export const Noise$ = objCreator("noise~", <const>[], <const>["out$"])
+export const Sin = objCreator("sin", <const>["in"], <const>["out"])
